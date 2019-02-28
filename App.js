@@ -6,6 +6,7 @@ import {
   View,
 } from 'react-native';
 import Tags from './src/components/Tags';
+import NewTagModal from './src/components/NewTagModal';
 
 const TAGS = [
   '#love',
@@ -37,13 +38,42 @@ const TAGS = [
   '#igers',
 ];
 
+type State = {
+  modalVisible: boolean,
+};
+
 export default class Main extends PureComponent {
 
+  state: State = {
+    modalVisible: false,
+  };
+
+  // Reference Tags component
+  _tagsComponent: ?Tags;
+
+  openModal = (): void => {
+    this.setState({ modalVisible: true });
+  };
+
+  closeModal = (): void => {
+    this.setState({ modalVisible: false });
+  };
+
+  onSubmitNewTag = (tag: string) => {
+    this._tagsComponent && this._tagsComponent.onSubmitNewTag(tag);
+  };
+
   render() {
+    const { modalVisible } = this.state;
     return (
       <View style={styles.container}>
         <StatusBar hidden={true} />
 
+        <NewTagModal
+          visible={modalVisible}
+          onSubmit={this.onSubmitNewTag}
+          onClose={this.closeModal}
+        />
         <View style={styles.header}>
           <Text style={[styles.text, styles.title]}>
             Let's drag and drop some tags!
@@ -53,8 +83,9 @@ export default class Main extends PureComponent {
           </Text>
         </View>
         <Tags
+          ref={component => this._tagsComponent = component}
           tags={TAGS}
-          onPressAddNewTag={() => { }} // do nothing for now
+          onPressAddNewTag={this.openModal}
         />
       </View>
     );
